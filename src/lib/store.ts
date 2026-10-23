@@ -13,12 +13,7 @@ const useBlob =
   Boolean(process.env.BLOB_READ_WRITE_TOKEN) &&
   process.env.FINPILOT_STORAGE !== "file";
 
-let blobCache: Database | null = null;
 let queue: Promise<unknown> = Promise.resolve();
-
-function cloneDatabase(db: Database): Database {
-  return structuredClone(db);
-}
 
 async function readFromBlob(): Promise<Database | null> {
   const result = await get(BLOB_PATHNAME, {
@@ -37,7 +32,6 @@ async function writeToBlob(db: Database) {
     addRandomSuffix: false,
     contentType: "application/json",
   });
-  blobCache = db;
 }
 
 async function readFromFile(): Promise<Database | null> {
@@ -59,17 +53,12 @@ async function writeToFile(db: Database) {
 
 async function loadDatabase(): Promise<Database> {
   if (useBlob) {
-    if (blobCache) return cloneDatabase(blobCache);
-
     const existing = await readFromBlob();
-    if (existing) {
-      blobCache = existing;
-      return cloneDatabase(existing);
-    }
+    if (existing) return existing;
 
     const seeded = createSeedDatabase();
     await writeToBlob(seeded);
-    return cloneDatabase(seeded);
+    return seeded;
   }
 
   const existing = await readFromFile();
