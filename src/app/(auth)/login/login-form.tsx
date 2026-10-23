@@ -92,7 +92,7 @@ export function LoginForm() {
         </p>
         <p className="mt-1.5">
           The workspace is pre-seeded with six months of Indian business data.
-          Changes are stored locally on this machine.
+          Changes stay in your demo workspace.
         </p>
       </div>
     </form>

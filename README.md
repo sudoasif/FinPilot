@@ -58,7 +58,7 @@ If the model call fails, FinPilot automatically falls back to the local analyst.
 - **Next.js 16.4** with `cacheComponents` and `partialPrefetching` enabled. Dynamic data is streamed behind `<Suspense>` boundaries with page-level skeletons.
 - **Server Actions** handle all mutations, with Zod validation and `revalidatePath`.
 - **Auth** is a demo signed HTTP-only cookie (HMAC) verified in both `proxy.ts` and every server action/API route. Replace with NextAuth/Supabase Auth for production.
-- **Storage** is a small file-backed JSON database at `data/finpilot.json`, created on first request and excluded from git. It persists across dev-server restarts on one machine.
+- **Storage** is a single JSON document. On Vercel it is stored as a private [Vercel Blob](https://vercel.com/docs/vercel-blob) object when `BLOB_READ_WRITE_TOKEN` is present; locally it is written to `data/finpilot.json`, which is excluded from git. It is a demo store, not a production database.
 - **AI SDK 7** is imported dynamically only when `OPENAI_API_KEY` is present, so builds and offline usage stay lean.
 - **Charts** use Recharts in client components; everything else is server-rendered where possible.
 
@@ -67,12 +67,26 @@ If the model call fails, FinPilot automatically falls back to the local analyst.
 Only these are used by the current demo:
 
 ```bash
-AUTH_SECRET=...          # optional in dev; set a 32+ char secret in production
-OPENAI_API_KEY=...       # optional; enables model-backed copilot answers
+AUTH_SECRET=...              # optional in dev; set a 32+ char secret in production
+BLOB_READ_WRITE_TOKEN=...    # optional; uses Vercel Blob instead of the local JSON file
+FINPILOT_STORAGE=file        # optional; force the local file even when a Blob token exists
+OPENAI_API_KEY=...           # optional; enables model-backed copilot answers
 AI_MODEL_CHAT=gpt-4o-mini
 ```
 
 The Supabase, email and OAuth variables in `.env.example` are placeholders for a production deployment and are not required to run the demo. `src/lib/env.ts` documents the full intended configuration.
+
+## Deploy on Vercel
+
+The repository includes a linked Vercel project configuration through the CLI, not in git. To deploy a fresh copy:
+
+```bash
+vercel link
+vercel env add AUTH_SECRET --environment production,preview
+vercel --prod
+```
+
+Link a Vercel Blob store to the project and set `BLOB_READ_WRITE_TOKEN` for Production, Preview and Development so the demo database persists. Without a Blob token, the app falls back to the local `data/finpilot.json` file, which only works on a writable local filesystem.
 
 ## Scripts
 
@@ -88,9 +102,9 @@ npx tsc --noEmit # type check
 
 This demo is intentionally self-contained. Before using it with real money or multiple users:
 
-1. Replace the JSON store with Supabase Postgres and add schema migrations.
+1. Replace the single-document JSON store (local file or Blob) with Supabase Postgres and add schema migrations.
 2. Replace demo cookie auth with NextAuth or Supabase Auth, and set `AUTH_SECRET`.
-3. Move document storage to Supabase Storage or Vercel Blob.
+3. Move document storage to Supabase Storage or Vercel Blob with per-user paths.
 4. Add audit logs, role-based access and backups.
 5. Review GST calculations with a chartered accountant — the report estimates are planning aids, not filings.
 

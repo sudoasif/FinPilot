@@ -40,6 +40,7 @@ export default function SettingsPage() {
 async function SettingsContent() {
   const db = await readDb();
   const aiEnabled = Boolean(process.env.OPENAI_API_KEY);
+  const blobStorage = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 
   return (
     <div className="fp-fade-up">
@@ -113,7 +114,7 @@ async function SettingsContent() {
               <p>
                 {aiEnabled
                   ? "OPENAI_API_KEY is set. Copilot answers use the configured model and your financial snapshot."
-                  : "No model key is configured. The copilot uses a deterministic analyst that reads your local books — nothing leaves this machine."}
+                  : "No model key is configured. The copilot uses a deterministic analyst that reads your workspace books — nothing is sent to a model provider."}
               </p>
               <p>
                 Add <span className="font-mono text-[10px]">OPENAI_API_KEY</span>{" "}
@@ -130,16 +131,28 @@ async function SettingsContent() {
                 <Database className="size-4 text-slate-500" />
                 Data & storage
               </CardTitle>
-              <CardDescription>Local demo persistence</CardDescription>
+              <CardDescription>Demo persistence</CardDescription>
             </CardHeader>
             <CardContent className="space-y-2 text-[11px] leading-relaxed text-slate-500">
               <p className="flex items-start gap-1.5">
                 <HardDrive className="mt-0.5 size-3.5 shrink-0 text-slate-400" />
-                Workspace data is stored in{" "}
-                <span className="font-mono text-[10px] text-slate-700">
-                  data/finpilot.json
-                </span>{" "}
-                on this machine. It survives server restarts.
+                {blobStorage ? (
+                  <>
+                    Workspace data is stored as a private JSON document in{" "}
+                    <span className="font-mono text-[10px] text-slate-700">
+                      Vercel Blob
+                    </span>
+                    . It survives server restarts and deployments.
+                  </>
+                ) : (
+                  <>
+                    Workspace data is stored in{" "}
+                    <span className="font-mono text-[10px] text-slate-700">
+                      data/finpilot.json
+                    </span>{" "}
+                    on this machine. It survives server restarts.
+                  </>
+                )}
               </p>
               <p className="flex items-start gap-1.5">
                 <ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-slate-400" />

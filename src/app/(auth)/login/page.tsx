@@ -62,9 +62,9 @@ export default function LoginPage() {
               },
               {
                 icon: ShieldCheck,
-                title: "Your data, your machine",
+                title: "Self-contained demo",
                 description:
-                  "This demo stores everything locally — no external services required.",
+                  "No external AI service required — the copilot works offline with your workspace data.",
               },
             ].map((feature) => (
               <div
