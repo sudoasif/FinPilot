@@ -10,7 +10,7 @@ This repository is a working product demo built with **Next.js 16 (App Router, C
 
 Live deployment: **https://finpilot-tau-two.vercel.app**
 
-> The Vercel project has Vercel Authentication enabled. Open the URL while signed in to the Vercel account that owns the project, or use `vercel curl` for command-line checks. Disable Deployment Protection in the project settings if you want a publicly shareable demo.
+The deployment is publicly accessible and uses a private Vercel Blob store for demo persistence. Use the demo credentials below.
 
 Run it locally:
 
